@@ -1,0 +1,5 @@
+- Đề tài: Text recognition
+- Phạm vi: tạo 1 app cho phép scan text thông qua camera, hoặc lấy ảnh trực tiếp từ máy. Sau đó chuyển hình chụp chữ thành chữ
+- Ý tưởng:
++ Giao diện: Gồm 2 nút, 1 nút để cho phép chụp ảnh, 1 nút cho phép copy văn bản sau khi đã nhận diện được. Trong chức năng chụp cho phép người dùng crop ảnh. 1 TextView để chứa kết quả
++ Chức năng: nhận diện chữ sử dụng ML Kit từ firebase.
