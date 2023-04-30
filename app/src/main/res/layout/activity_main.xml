@@ -21,25 +21,31 @@
                 app:cardElevation="3dp"
                 app:cardBackgroundColor="#fff">
                 <LinearLayout
-                    android:padding="5dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:padding="5dp"
                     android:orientation="vertical">
                     <TextView
                         android:textSize="20sp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Result"
-                        android:textColor="@color/teal_700"/>
-                    <EditText
-                        android:id="@+id/result"
-                        android:hint="Extracted text here"
-                        android:autoLink="all"
-                        android:padding="5dp"
-                        android:textColor="#000"
-                        android:background="@null"
+                        android:text="@string/image_preview"
+                        android:textColor="@color/blue"/>
+                    <ImageView
+                        android:id="@+id/imageView"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"/>
+                        android:layout_height="wrap_content"
+                        android:scaleType="centerCrop"
+                        android:maxHeight="450dp"
+                        android:contentDescription="@string/todo" />
+                    <com.vuhoangtrucvy20110415.ocr.GraphicOverlay
+                        android:id="@+id/graphic_overlay"
+                        android:layout_width="fill_parent"
+                        android:layout_height="fill_parent"
+                        app:layout_constraintTop_toTopOf="@id/imageView"
+                        app:layout_constraintBottom_toBottomOf="@id/imageView"
+                        app:layout_constraintLeft_toLeftOf="@id/imageView"
+                        app:layout_constraintRight_toRightOf="@id/imageView" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
             <androidx.cardview.widget.CardView
@@ -50,23 +56,34 @@
                 app:cardElevation="3dp"
                 app:cardBackgroundColor="#fff">
                 <LinearLayout
+                    android:padding="5dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="5dp"
                     android:orientation="vertical">
                     <TextView
                         android:textSize="20sp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Image Preview"
-                        android:textColor="@color/teal_700"/>
-                    <ImageView
-                        android:id="@+id/imageView"
-                        android:layout_width="wrap_content"
+                        android:text="@string/result"
+                        android:textColor="@color/blue"/>
+
+                    <EditText
+                        android:id="@+id/result"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:maxHeight="250dp"/>
+                        android:allowClickWhenDisabled="false"
+                        android:autoLink="all"
+                        android:autofillHints="@string/extracted_text"
+                        android:background="@null"
+                        android:enabled="false"
+                        android:hint="@string/extracted_text"
+                        android:inputType="textMultiLine"
+                        android:minHeight="48dp"
+                        android:padding="5dp"
+                        android:textColor="#000" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
+
         </LinearLayout>
     </ScrollView>
 
