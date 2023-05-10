@@ -6,6 +6,7 @@ import android.Manifest;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -24,6 +25,7 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -38,15 +40,16 @@ import com.google.mlkit.vision.text.Text;
 import com.google.mlkit.vision.text.TextRecognition;
 import com.google.mlkit.vision.text.TextRecognizer;
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
+import com.theartofdev.edmodo.cropper.CropImage;
+import com.theartofdev.edmodo.cropper.CropImageView;
 import com.vuhoangtrucvy20110415.ocr.databinding.ActivityMainBinding;
 
 import java.io.FileNotFoundException;
-import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity {
     private static final int STORAGE_REQUEST_CODE=400;
-//    private static final int IMAGE_PICK_GALLERY_CODE=1000;
+    private static final int IMAGE_PICK_GALLERY_CODE=1000;
     ActivityMainBinding binding;
     EditText mResult;
     ImageView mPreview;
@@ -144,32 +147,31 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-//    @Override
-//    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-//        if(resultCode==RESULT_OK){
-//            if(requestCode==IMAGE_PICK_GALLERY_CODE) {
-//                assert data != null;
-//                CropImage.activity(data.getData())
-//                        .setGuidelines(CropImageView.Guidelines.ON)
-//                        .start(this);
-//            }
-//        }
-//        if (requestCode==CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE){
-//            CropImage.ActivityResult result=CropImage.getActivityResult(data);
-//            if (resultCode==RESULT_OK){
-//                assert result != null;
-//                Uri resultUri = result.getUri();
-//                mPreview.setImageURI(resultUri);
-//            }
-//        }
-//    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode==RESULT_OK){
+            if(requestCode==IMAGE_PICK_GALLERY_CODE) {
+                assert data != null;
+                CropImage.activity(data.getData())
+                        .setGuidelines(CropImageView.Guidelines.ON)
+                        .start(this);
+            }
+        }
+        if (requestCode==CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE){
+            CropImage.ActivityResult result=CropImage.getActivityResult(data);
+            if (resultCode==RESULT_OK){
+                assert result != null;
+                Uri resultUri = result.getUri();
+                mPreview.setImageURI(resultUri);
+            }
+        }
+    }
 
     private void runTextRecognition() {
         InputImage image = InputImage.fromBitmap(bitmap, 0);
         TextRecognizer recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
-        Task<Text> result =
-        recognizer.process(image)
+        Task<Text> result = recognizer.process(image)
                 .addOnSuccessListener(new OnSuccessListener<Text>() {
                     @Override
                     public void onSuccess(Text visionText) {
