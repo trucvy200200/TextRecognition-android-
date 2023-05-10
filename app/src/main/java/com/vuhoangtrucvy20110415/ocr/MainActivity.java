@@ -1,5 +1,7 @@
 package com.vuhoangtrucvy20110415.ocr;
 
+import static android.content.ContentValues.TAG;
+
 import android.Manifest;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -27,11 +29,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.text.Text;
 import com.google.mlkit.vision.text.TextRecognition;
 import com.google.mlkit.vision.text.TextRecognizer;
+import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
 import com.vuhoangtrucvy20110415.ocr.databinding.ActivityMainBinding;
 
 import java.io.FileNotFoundException;
@@ -161,20 +167,27 @@ public class MainActivity extends AppCompatActivity {
 
     private void runTextRecognition() {
         InputImage image = InputImage.fromBitmap(bitmap, 0);
-        TextRecognizer recognizer = TextRecognition.getClient();
-//        mTextButton.setEnabled(false);
-        // Task failed with an exception
-        //                               mTextButton.setEnabled(true);
+        TextRecognizer recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
+        Task<Text> result =
         recognizer.process(image)
-               .addOnSuccessListener(
-                       texts -> {
-//                               mTextButton.setEnabled(true);
-//                           processTextRecognitionResult(texts);
-
-                       })
-               .addOnFailureListener(
-                       Throwable::printStackTrace);
-        recognizer.close();
+                .addOnSuccessListener(new OnSuccessListener<Text>() {
+                    @Override
+                    public void onSuccess(Text visionText) {
+                        // Task completed successfully
+                        // ...
+                        String resultText = visionText.getText();
+                        mResult.setText(resultText);
+                        showToast("Texts are successfully extracted",true);
+                    }
+                })
+                .addOnFailureListener(
+                        new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.e(TAG, "Text recognition failed: " + e.getMessage());
+                                showToast("Text recognition failed",false);
+                            }
+                        });
     }
 
     private void showToast(String message, boolean success) {
@@ -207,31 +220,5 @@ public class MainActivity extends AppCompatActivity {
         clipboard.setPrimaryClip(clip);
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2)
             Toast.makeText(this , "Copied", Toast.LENGTH_SHORT).show();
-    }
-
-    private void processTextRecognitionResult(Text texts) {
-        List<Text.TextBlock> blocks = texts.getTextBlocks();
-        if (blocks.size() == 0) {
-           showToast("No text found", false);
-           mResult.setText("");
-           return;
-        }
-        StringBuilder extracted_text = new StringBuilder();
-        mGraphicOverlay.clear();
-        for (int i = 0; i < blocks.size(); i++) {
-           List<Text.Line> lines = blocks.get(i).getLines();
-           for (int j = 0; j < lines.size(); j++) {
-               List<Text.Element> elements = lines.get(j).getElements();
-               for (int k = 0; k < elements.size(); k++) {
-//                   GraphicOverlay.Graphic textGraphic = new TextGraphic(mGraphicOverlay, elements.get(k));
-//                   mGraphicOverlay.add(textGraphic);
-                   extracted_text.append(elements.get(k).getText()).append(" ");
-               }
-//               Log.e("TAG", "processTextRecognitionResult: "+elements.get(0).getText());
-               extracted_text.append("\n");
-           }
-        }
-        mResult.setText(extracted_text.toString());
-        showToast("Texts are successfully extracted", true);
     }
 }
