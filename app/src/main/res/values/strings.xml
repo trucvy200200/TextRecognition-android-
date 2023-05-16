@@ -6,4 +6,7 @@
     <string name="todo">TODO</string>
     <string name="add_image">Add Image</string>
     <string name="setting">Setting</string>
+    <string name="on">On</string>
+    <string name="translate">Translate</string>
+    <string name="off">Off</string>
 </resources>

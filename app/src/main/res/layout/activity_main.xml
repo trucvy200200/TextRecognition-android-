@@ -46,20 +46,20 @@
                 </LinearLayout>
 
             </androidx.cardview.widget.CardView>
+
             <androidx.appcompat.widget.SwitchCompat
-                android:layout_gravity="center"
                 android:id="@+id/switchcompat"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Translate   "
-                android:textOn="On"
-                android:textOff="Off"
-                app:showText="true"
-                android:textSize="20sp"
-                android:textColor="@color/blue"
+                android:layout_gravity="center"
+                android:layout_marginStart="5dp"
+                android:minHeight="48dp"
                 android:padding="5dp"
-                android:layout_marginLeft="5dp"
+                android:text="@string/translate"
+                android:textColor="@color/blue"
+                android:textSize="20sp"
                 android:textStyle="bold"
+                app:switchPadding="10dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />

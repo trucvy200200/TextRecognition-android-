@@ -29,12 +29,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.mlkit.vision.common.InputImage;
-import com.google.mlkit.vision.text.Text;
 import com.google.mlkit.vision.text.TextRecognition;
 import com.google.mlkit.vision.text.TextRecognizer;
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
@@ -51,7 +47,21 @@ public class MainActivity extends AppCompatActivity {
     ImageView mPreview;
     Bitmap bitmap;
     String[] storagePermission;
+    String extractedText = "";
+    String translatedText = "";
+    boolean newText = true;
     Uri image_uri;
+
+    ModelLanguage modelLanguage;
+    Callback translationCallback = new Callback() {
+            @Override
+            public void onTranslationComplete(String text) {
+                translatedText = text;
+                mResult.setText(translatedText);
+                newText = false;
+                Log.e("translatedText", "saved translated text");
+            }
+        };
 
 
     final ActivityResultLauncher<String> mGetContent = registerForActivityResult(new ActivityResultContracts.GetContent(),
@@ -64,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
                     mPreview.setImageBitmap(bitmap);
                     if (bitmap!=null){
                         Log.e("bitmap",bitmap.toString());
+                        newText = true;
                         runTextRecognition();
                     }
                 } catch (FileNotFoundException e) {
@@ -78,6 +89,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding=ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        modelLanguage = new ModelLanguage();
+
         ActionBar actionBar=getSupportActionBar();
         assert actionBar != null;
         actionBar.setSubtitle("Click + button to insert Image");
@@ -85,6 +99,21 @@ public class MainActivity extends AppCompatActivity {
         mResult = binding.result;
         mResult.setText("");
         storagePermission=new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
+
+
+        binding.switchcompat.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                if (newText) {
+                    mResult.setText("");
+                    modelLanguage.translate(extractedText, translationCallback);
+//                    translatedText = mResult.getText().toString();
+                } else {
+                    mResult.setText(translatedText);
+                }
+            } else {
+                mResult.setText(extractedText);
+            }
+        });
     }
 
     @Override
@@ -139,52 +168,31 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
-
     }
-
-//    @Override
-//    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-//        if(resultCode==RESULT_OK){
-//            if(requestCode==IMAGE_PICK_GALLERY_CODE) {
-//                assert data != null;
-//                CropImage.activity(data.getData())
-//                        .setGuidelines(CropImageView.Guidelines.ON)
-//                        .start(this);
-//            }
-//        }
-//        if (requestCode==CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE){
-//            CropImage.ActivityResult result=CropImage.getActivityResult(data);
-//            if (resultCode==RESULT_OK){
-//                assert result != null;
-//                Uri resultUri = result.getUri();
-//                mPreview.setImageURI(resultUri);
-//            }
-//        }
-//    }
 
     private void runTextRecognition() {
         InputImage image = InputImage.fromBitmap(bitmap, 0);
         TextRecognizer recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
-        Task<Text> result = recognizer.process(image)
-                .addOnSuccessListener(new OnSuccessListener<Text>() {
-                    @Override
-                    public void onSuccess(Text visionText) {
-                        // Task completed successfully
-                        // ...
-                        String resultText = visionText.getText();
-                        mResult.setText(resultText);
-                        showToast("Texts are successfully extracted",true);
+        recognizer.process(image)
+                .addOnSuccessListener(visionText -> {
+                    extractedText = visionText.getText();
+
+                    if (binding.switchcompat.isChecked()){
+                        mResult.setText("");
+                        modelLanguage.translate(extractedText, translationCallback);
+//                        mResult.setText(translatedText);
+//                        translatedText = mResult.getText().toString();
+                        Log.e("translatedText", "saved translated text");
+                    } else {
+                        mResult.setText(extractedText);
                     }
+                    showToast("Texts are successfully extracted", true);
                 })
                 .addOnFailureListener(
-                        new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.e(TAG, "Text recognition failed: " + e.getMessage());
-                                showToast("Text recognition failed",false);
-                            }
-                        });
+                    e -> {
+                        Log.e(TAG, "Text recognition failed: " + e.getMessage());
+                        showToast("Text recognition failed", false);
+                });
     }
 
     private void showToast(String message, boolean success) {
